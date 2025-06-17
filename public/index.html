@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="ludo.css">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="toast.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module" src="online_ludo.js" crossorigin="anonymous"></script>
+    <title>Ludo Game</title>
+</head>
+
+<body>
+    <div id="room-creation" class="room-management">
+        <div class="room-creation-form">
+            <h2>Join or Create a Game</h2>
+            <input type="text" id="player-name-input" placeholder="Enter your name" maxlength="20">
+
+            <div class="room-actions">
+                <button id="create-room-btn">Create Room</button>
+                <div class="join-room-section">
+                    <input type="text" id="room-id-input" placeholder="Room Code" maxlength="6">
+                    <button id="join-room-btn">Join Room</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-area" style="display: none;">
+        <div class="room-info">
+            <div class="container1">
+                <div class="room-id" title="Click to copy">Room: <span id="room-id-display" ></span></div>
+                <button id="start-game-btn" style="display: none;">Start Game</button>
+            </div>
+            <div id="players-list"></div>
+        </div>
+
+        <!-- Your existing game HTML goes here -->
+        <div class="game-container">
+            <div class="header">
+                <div class="current-player">Current Player: <span id="current-player-color">   </span></div>
+            </div>
+            <div class="ludo-board" id="ludo-board">
+                <div class="home-area home-red">
+                    <div class="winner-badge">
+                    </div>
+                    <div class="home-circle" id="home-red-1"></div>
+                    <div class="home-circle" id="home-red-2"></div>
+                    <div class="home-circle" id="home-red-3"></div>
+                    <div class="home-circle" id="home-red-4"></div>
+                </div>
+                <div class="home-area home-green">
+                    <div class="winner-badge">
+                    </div>
+                    <div class="home-circle" id="home-green-1"></div>
+                    <div class="home-circle" id="home-green-2"></div>
+                    <div class="home-circle" id="home-green-3"></div>
+                    <div class="home-circle" id="home-green-4"></div>
+                </div>
+                <div class="home-area home-yellow">
+                    <div class="winner-badge">
+                    </div>
+                    <div class="home-circle" id="home-yellow-1"></div>
+                    <div class="home-circle" id="home-yellow-2"></div>
+                    <div class="home-circle" id="home-yellow-3"></div>
+                    <div class="home-circle" id="home-yellow-4"></div>
+                </div>
+                <div class="home-area home-blue">
+                    <div class="winner-badge">
+                    </div>
+                    <div class="home-circle" id="home-blue-1"></div>
+                    <div class="home-circle" id="home-blue-2"></div>
+                    <div class="home-circle" id="home-blue-3"></div>
+                    <div class="home-circle" id="home-blue-4"></div>
+                </div>
+
+                <div class="center-triangle">
+                    <div class="triangle red"></div>
+                    <div class="triangle green"></div>
+                    <div class="triangle blue"></div>
+                    <div class="triangle yellow"></div>
+                    <div id="cell-8-7" class="redHome"></div>
+                    <div id="cell-7-8" class="greenHome"></div>
+                    <div id="cell-8-9" class="blueHome"></div>
+                    <div id="cell-9-8" class="yellowHome"></div>
+
+
+                    <div class="dice-area">
+                        <div class="scene">
+                            <div class="dice" id="dice">
+                                <!-- Face 1 -->
+                                <div class="face front">
+                                    <div class="pip" style="grid-column: 2; grid-row: 2;"></div>
+                                </div>
+                                <!-- Face 6 -->
+                                <div class="face back">
+                                    <div class="pip" style="grid-column: 1; grid-row: 1;"></div>
+                                    <div class="pip" style="grid-column: 1; grid-row: 2;"></div>
+                                    <div class="pip" style="grid-column: 1; grid-row: 3;"></div>
+                                    <div class="pip" style="grid-column: 3; grid-row: 1;"></div>
+                                    <div class="pip" style="grid-column: 3; grid-row: 2;"></div>
+                                    <div class="pip" style="grid-column: 3; grid-row: 3;"></div>
+                                </div>
+                                <!-- Face 3 -->
+                                <div class="face right">
+                                    <div class="pip" style="grid-column: 1; grid-row: 1;"></div>
+                                    <div class="pip" style="grid-column: 2; grid-row: 2;"></div>
+                                    <div class="pip" style="grid-column: 3; grid-row: 3;"></div>
+                                </div>
+                                <!-- Face 4 -->
+                                <div class="face left">
+                                    <div class="pip" style="grid-column: 1; grid-row: 1;"></div>
+                                    <div class="pip" style="grid-column: 1; grid-row: 3;"></div>
+                                    <div class="pip" style="grid-column: 3; grid-row: 1;"></div>
+                                    <div class="pip" style="grid-column: 3; grid-row: 3;"></div>
+                                </div>
+                                <!-- Face 5 -->
+                                <div class="face top">
+                                    <div class="pip" style="grid-column: 1; grid-row: 1;"></div>
+                                    <div class="pip" style="grid-column: 1; grid-row: 3;"></div>
+                                    <div class="pip" style="grid-column: 2; grid-row: 2;"></div>
+                                    <div class="pip" style="grid-column: 3; grid-row: 1;"></div>
+                                    <div class="pip" style="grid-column: 3; grid-row: 3;"></div>
+                                </div>
+                                <!-- Face 2 -->
+                                <div class="face bottom">
+                                    <div class="pip" style="grid-column: 1; grid-row: 1;"></div>
+                                    <div class="pip" style="grid-column: 3; grid-row: 3;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Uncomment to drop a star right in the dead center: -->
+                    <!-- <div class="center-icon">★</div> -->
+                </div>
+
+            </div>
+        </div>
+
+
+
+        <div class="message-box" id="message-box">
+            <p id="message-text"></p>
+            <button id="message-button">OK</button>
+        </div>
+
+
+</body>
+
+</html>

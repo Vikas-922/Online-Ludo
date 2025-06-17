@@ -1,0 +1,482 @@
+/* Room Management Styles */
+.room-management {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+    font-family: 'Arial', sans-serif;
+}
+
+.room-creation-form {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.room-creation-form h2 {
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 28px;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#player-name-input {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid #e1e8ed;
+    border-radius: 12px;
+    font-size: 16px;
+    margin-bottom: 25px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.8);
+    box-sizing: border-box;
+}
+
+#player-name-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: rgba(255, 255, 255, 1);
+}
+
+.room-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#create-room-btn {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+#create-room-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+#create-room-btn:active {
+    transform: translateY(0);
+}
+
+.join-room-section {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+#room-id-input {
+    flex: 1;
+    padding: 15px 20px;
+    border: 2px solid #e1e8ed;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.8);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+}
+
+#room-id-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: rgba(255, 255, 255, 1);
+}
+
+#join-room-btn {
+    background: linear-gradient(45deg, #56ab2f, #a8e6cf);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(86, 171, 47, 0.3);
+    white-space: nowrap;
+}
+
+#join-room-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(86, 171, 47, 0.4);
+}
+
+#join-room-btn:active {
+    transform: translateY(0);
+}
+
+
+/*====================================*/
+
+
+/* Game Area Styles */
+#game-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* min-height: 100vh; */
+    width: 100%;
+    /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+    /* padding: 20px; */
+}
+
+.container1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* width: 100%; */
+}
+
+.room-id{
+    font-weight: bold;
+    margin-right: 0.9rem;
+}
+
+.room-info {
+    background: rgb(190 255 254 / 36%);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 8px 22px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.room-info > div {
+    font-weight: 600;
+    color: #333;
+    font-size: 16px;
+}
+
+#room-id-display {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+    letter-spacing: 2px;
+    font-size: 18px;
+}
+#players-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 10px;
+    justify-content: center;
+}
+
+.player-tag {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    padding: 7px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    /* min-width: 80px; */
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    position: relative;
+}
+
+
+.player-tag.you {
+    background: linear-gradient(45deg, #f093fb, #f5576caf);
+    box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+}
+
+.player-name {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.host-badge {
+    font-size: 14px;
+    margin-left: 5px;
+    color: #ffd700;    
+    background: #e9ff00;
+    border-radius: 50%;
+}
+
+.player-left {
+    font-size: 12px;
+    margin-top: 4px;
+    color: #ffcccc;
+}
+
+
+#start-game-btn {
+    background: linear-gradient(45deg, #f093fb, #f5576c);
+    color: white;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+}
+
+#start-game-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4);
+}
+
+#start-game-btn:active {
+    transform: translateY(0);
+}
+
+
+.winner-badge .playerNameInHomeArea{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.left-icon {
+    font-size: 1rem;
+    color: #ff4d4f;
+    margin-left: 6px;
+    margin-top: 2px;
+    animation: fadeIn 0.4s ease-in;
+}
+
+/* Optional animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* Loading and Error States */
+.loading {
+    opacity: 0.7;
+    pointer-events: none;
+    position: relative;
+}
+
+.loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #fff;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-message {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin: 10px 0;
+    text-align: center;
+    font-weight: 500;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.success-message {
+    background: linear-gradient(45deg, #56ab2f, #a8e6cf);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin: 10px 0;
+    text-align: center;
+    font-weight: 500;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#room-id-display{
+    cursor: pointer;
+}
+
+
+
+
+
+
+/* Responsive Design */
+@media (max-width: 480px) {
+
+    .room-management{
+        width: 100%;
+    }
+    .room-creation-form {
+        padding: 30px 20px;
+        margin: 12px;
+    }
+    
+    .join-room-section {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .room-actions{
+        gap: 30px;
+    }
+
+    .room-creation-form h2{
+        font-size: 20px;
+    }
+
+    #player-name-input{
+        padding: 12px 14px;
+        font-size: 16px;
+        margin-bottom: 18px;
+    }
+
+    #create-room-btn {
+        padding: 12px 20px;
+        font-size: 14px;
+        letter-spacing: 3px;
+    }
+
+    #join-room-btn{
+        padding: 11px 25px;
+        letter-spacing: 3px;
+    }
+
+    
+    #room-id-input{
+        width: 80%;
+        padding: 10px 20px;
+        font-size: 18px;
+        letter-spacing: 8px;
+    }
+    #join-room-btn {
+        width:80%;
+    }
+    
+    .room-info {
+        flex-direction: column;
+        text-align: center;
+        padding: 10px;        
+        width: 91%;
+        gap: 2px;
+    }
+
+    #room-id-display {
+        font-size: 18px;
+    }
+
+    #start-game-btn{
+        font-size: 13px;
+        letter-spacing: 0px;
+    }
+    
+    #players-list {
+        justify-content: center;
+    }
+
+    .player-name{
+        font-size: 15px;
+    }
+
+    .player-tag{
+        padding: 6px 13px;
+        min-width: none;
+    }
+
+    .winner-badge .playerNameInHomeArea  {
+        font-size: 0.88rem;
+    }
+}
+
+
+@media (min-width: 800px){
+    .ludo-board{
+        max-width: 530px;
+    }
+    #game-area{
+        flex-direction: row;
+        justify-content: space-around;
+    }
+    .room-info{
+        flex-direction: column;
+    }
+    #players-list{
+        flex-direction: column;
+        align-items: center;
+    }
+    .player-tag{
+        min-width: 80px;
+    }
+    .game-container{
+        max-width: 590px;        
+        margin-left: 0.5rem;
+    }
+    .current-player{
+        font-size: 1.4rem;
+    }
+}
