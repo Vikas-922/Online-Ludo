@@ -35,10 +35,6 @@ const roomIdInput = document.getElementById('room-id-input');
 const playerNameInput = document.getElementById('player-name-input');
 let pieceSize = 20; // Size of a piece for positioning
 
-// Keep all your existing game variables and constants
-// const board = document.getElementById('ludo-board');
-// const dice = document.getElementById('dice');
-// ... all your existing variables
 
 
 // Define player colors and their starting/path/home positions
@@ -250,12 +246,8 @@ function joinRoom() {
     }
     
     playerName = name;
-    // console.log(`emmitting join-room with playerName: ${playerName}, roomCode: ${roomCode}`);
-
-    // console.log(`emitting join-room with code: ${roomCode}`);
 
     socket.emit('join-room', { roomId: roomCode, playerName: name });
-    // showMessage("Joining room...", true);
     // toast.info("Joining room...");
 }
 
@@ -264,13 +256,11 @@ function joinRoom() {
  */
 function startGame() {
     if (!isHost) {
-        // showMessage("Only the host can start the game");
         toast.warning("Only the host can start the game",2000);
         return;
     }
     
     if (playersInRoom.length < 2) {
-        // showMessage("Need at least 2 players to start");
         toast.warning("Need at least 2 players to start",2000);
         return;
     }
@@ -290,8 +280,6 @@ function updatePlayersDisplay() {
 
     playersInRoom.forEach(player => {
         const playerDiv = document.createElement('div');
-        // const playerClass = player.isHost ? 'host'
-        //                     : player.color === playerColor ? 'you' : '';
         playerDiv.className = `player-tag ${player.color} ${player.color === playerColor ? 'you' : ''}`;
 
         let playerStatus = '';
@@ -334,7 +322,6 @@ socket.on('room-created', (data) => {
 
     showNameInHomeArea("You", playerColor);
     
-    // showMessage(`Room created! Share code: ${roomId}`);
     toast.success(`Room created! Share code: ${roomId}`,2000);
 });
 
@@ -352,8 +339,7 @@ socket.on('room-joined', (data) => {
     gameAreaDiv.style.display = 'flex';
     initializeBoard();
 
-   showNameInHomeArea("You", playerColor);
-    
+   showNameInHomeArea("You", playerColor);    
     
     showMessage(`Joined room ${roomId} as ${playerColor}`);
     toast.success(`Joined room successfully as ${playerColor}`,1200);
@@ -410,10 +396,7 @@ socket.on('game-started', (data) => {
     document.querySelector('.game-container').style.display = 'flex';
     
     // Initialize game with only the colors of players in room
-
-    // playerColorsInGame = (data.playerColors).map(player => player.color); // Update player colors in game
     initializeOnlineGame(playerColorsInGame);
-    // initializeOnlineGame(data.playerColors);
     
     currentTurn = gameState.currentTurn;
     updateCurrentPlayerDisplay();
@@ -474,16 +457,12 @@ socket.on('dice-rolled', (data) => {
     diceValue = data.diceValue;
     
     // Update dice display to show the rolled value
-    updateDiceDisplay(data.finalX, data.finalY);
-
-    
+    updateDiceDisplay(data.finalX, data.finalY);    
     
     if (data.player === playerColor) {
         // This is our roll, handle it
         handleOwnDiceRoll(data.diceValue);
     } else {
-        // Another player rolled
-        // showMessage(`${data.playerName} rolled ${data.diceValue}`);
         console.log(` ${data.playerName} rolled ${data.diceValue}`);
         
     }
@@ -514,14 +493,10 @@ socket.on('turn-changed',(data) => {
     if (playerColor === currentTurn) {
         // showMessage("It's your turn!");
         toast.info("It's your turn!",400);
-        console.log("🎯 It's your turn!");
-        
+        console.log("🎯 It's your turn!");        
         dice.style.pointerEvents = 'auto';
     } else {
-        // showMessage(`It's ${data.currentPlayer}'s turn`);
-        console.log(`🕹️ It's ${data.currentPlayer}'s turn`);
-        // console.log(`Setting dice pointerEvents to none for ${data.currentPlayer}`);
-        
+        console.log(`🕹️ It's ${data.currentPlayer}'s turn`);        
         dice.style.pointerEvents = 'none';
         console.log("🎲❌ dice disabled");
         
@@ -540,16 +515,7 @@ socket.on('error', (data) => {
 /**
  * Initialize the online game with specific player colors
  */
-function initializeOnlineGame(playerColors) {
-    // Use your existing initializeBoard() and createPieces() functions
-    // but modify them to only create pieces for players in the game
-    
-    // Clear existing board if any
-    // board.innerHTML = '';
-    
-    // Initialize board (use your existing function)
-    // initializeBoard();
-    
+function initializeOnlineGame(playerColors) {    
     // Create pieces only for players in the room
     createOnlinePieces(playerColors);
     
@@ -689,17 +655,6 @@ async function diceRollAnimation() {
 }
 
 async function updateDiceDisplay(finalX, finalY) {
-    // if (isRolling) return;
-
-    // // Perform dice animation (keep your existing animation code)
-    // if (rollingTimeout) {
-    //     clearTimeout(rollingTimeout);
-    //     clearTimeout(nextTimeout);
-    //     isRolling = false;
-    // }
-
-    // isRolling = true;
-    // console.log(`on dice-rolled with finalX: ${finalX}, finalY: ${finalY}`);
     
     dice.style.transition = 'transform 0.7s ease-out';
     dice.style.transform = `rotateX(${finalX}deg) rotateY(${finalY}deg)`;
@@ -710,21 +665,10 @@ async function updateDiceDisplay(finalX, finalY) {
     const value = getDiceValue(finalX, finalY);
     
     setTimeout(() => {
-        diceRollingAudio.pause();
-        // dice.style.pointerEvents = 'none';
-        // console.log(`dice pointerEvents set to none`);
-        
+        diceRollingAudio.pause();        
         document.querySelector('.dice-area').classList.remove('rolling');        
     }, 600);
 
-    // nextTimeout = setTimeout(() => {
-        // Send dice roll to server
-        // console.log(`emitting roll-dice with value: ${value}`);
-        
-        // socket.emit('roll-dice', { value: value });
-        // isRolling = false;
-        // rollingTimeout = null;
-    // }, 900);
 }
 
 /**
@@ -824,17 +768,7 @@ async function movePiece(piece, steps) {
             arrangePiecesInCell(startCell);
             piece.dataset.position = 'path';
             piece.dataset.pathIndex = '0';
-            
-            // console.log(`➡️ emitting move-piece for ${piece.dataset.pieceId} to path index 0`);
-            
-            // Send move to server
-            // socket.emit('move-piece', {
-            //     pieceId: piece.dataset.pieceId,
-            //     newPosition: 'path',
-            //     newPathIndex: 0,
-            //     steps
-            // });
-            
+                        
             resetOnlineTurn();
         } else {
             deselectPiece();
@@ -873,21 +807,10 @@ async function movePiece(piece, steps) {
         piece.dataset.position = 'finished';
         piece.dataset.pathIndex = finishIndex.toString();
         
-        // console.log(`emitting move-piece for ${piece.dataset.pieceId} to finished with index ${newIndex}`);
-        
-        // Send move to server
-        // socket.emit('move-piece', {
-        //     pieceId: piece.dataset.pieceId,
-        //     newPosition: 'finished',
-        //     newPathIndex: newIndex,
-        //     steps
-        // });
-        // console.log(`going to check win condition for ${currentTurn}`);
-        
+                
         checkWinCondition();
 
-        // console.log(`completed win condition for ${currentTurn}`);
-        
+        // console.log(`completed win condition for ${currentTurn}`);        
 
         resetOnlineTurn();
         return;
@@ -914,14 +837,6 @@ async function movePiece(piece, steps) {
     piece.dataset.pathIndex = newIndex.toString();
 
     console.log(`➡️ emitting move-piece for ${piece.dataset.pieceId} to path index ${newIndex}`);
-
-    // Send move to server
-    // socket.emit('move-piece', {
-    //     pieceId: piece.dataset.pieceId,
-    //     newPosition: piece.dataset.position,
-    //     newPathIndex: newIndex,
-    //     steps
-    // });
     
     if (newIndex < COMMON_LENGTH) {
         checkAndKillOpponent(piece);
@@ -979,8 +894,7 @@ function checkWinCondition() {
     const finishedPieces = currentPlayer.pieces.filter(p => p.dataset.position === 'finished');
     // console.log(`pieces : ${currentPlayer.pieces} `);
 
-    if (finishedPieces.length === 1) {
-        // showMessage(`${currentTurn.toUpperCase()} wins the game! Congratulations!`);
+    if (finishedPieces.length === 4) {
         toast.success(`${currentTurn.toUpperCase()} wins the game! Congratulations!`, 2000);
        declareWinner(currentTurn); 
        playerColorsInGame.splice(playerColorsInGame.indexOf(currentTurn), 1); 
@@ -1180,8 +1094,7 @@ function declareWinner(playerColor) {
     img.alt = `${place} Place`;
     img.style.display = 'block';
     badgeDiv.appendChild(img);
-
-    // if (winners.length === playerColorsInGame.length || currentTurn === "yellow") {
+    
     if (winners.length === 3) {
         // If 3 players have finished or it's a human player finished
         gameEnds(); // All players have finished
@@ -1198,7 +1111,6 @@ function gameEnds() {
     });
     gameStarted = false;
     playerColorsInGame.splice(0, playerColorsInGame.length); // Clear player colors in game
-    // showMessage("Game Over! Thanks for playing!");
     toast.info("Game Ends! Thanks for playing!",4000);
 }
 
@@ -1238,8 +1150,6 @@ window.onload = function() {
     roomCreationDiv.style.display = 'flex';
     gameAreaDiv.style.display = 'none';
     
-    // Initialize board structure but don't start game yet
-    // The game will be initialized when 'game-started' event is received
 };
 
 // Handle page refresh/close
