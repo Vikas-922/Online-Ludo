@@ -574,28 +574,9 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.get('/api/rooms/history', async (req, res) => {
-    try {
-        const rooms = await Room.find().sort({ createdAt: -1 }).limit(15);
-        // const rooms = {message: "not connected to DB"}
-        res.json(rooms);
-    } catch (error) {
-        res.status(500).json({ error: 'Server error' });
-    }
-});
-
-// Health check
-app.get('/health', (req, res) => {
-    res.json({ 
-        status: 'ok', 
-        activeRooms: activeRooms.size,
-        connectedPlayers: playerSockets.size
-    });
-});
 
 
-
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 server.listen(PORT, '0.0.0.0', () => {
     // console.log(`Server running on port ${PORT}`);
 });
