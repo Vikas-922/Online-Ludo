@@ -18,7 +18,6 @@ const io = new socketIO.Server(server, {
 // Middleware
 app.use(express.json());
 app.use(cors());
-// app.use(express.static(path.join('public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 
@@ -102,7 +101,7 @@ function createInitialGameState() {
 
 // Socket.IO event handlers
 io.on('connection', (socket) => {
-    console.log(`User connected: ${socket.id}`);
+    // console.log(`User connected: ${socket.id}`);
 
     // Create room
     socket.on('create-room', async (data) => {
@@ -147,7 +146,7 @@ io.on('connection', (socket) => {
                 gameStarted: room.gameState.gameStarted
             });
             
-            console.log(`Room ${roomId} created by ${playerName}`);
+            // console.log(`Room ${roomId} created by ${playerName}`);
         } catch (error) {
             socket.emit('error', { message: 'Failed to create room' });
             console.error('Create room error:', error);
@@ -219,7 +218,7 @@ io.on('connection', (socket) => {
                 await dbRoom.save();
             }
             
-            console.log(`${playerName} joined room ${roomId} as ${playerColor}`);
+            // console.log(`${playerName} joined room ${roomId} as ${playerColor}`);
         } catch (error) {
             socket.emit('error', { message: 'Failed to join room' });
             console.error('Join room error:', error);
@@ -275,7 +274,7 @@ io.on('connection', (socket) => {
                 await dbRoom.save();
             }
 
-            console.log(`Game started in room ${playerData.roomId}`);
+            // console.log(`Game started in room ${playerData.roomId}`);
         } catch (error) {
             socket.emit('error', { message: 'Failed to start game' });
             console.error('Start game error:', error);
@@ -308,7 +307,7 @@ io.on('connection', (socket) => {
             playerName: playerData.playerName
         });
         
-        console.log(`${playerData.playerName} rolled ${diceValue} in room ${playerData.roomId}`);
+        // console.log(`${playerData.playerName} rolled ${diceValue} in room ${playerData.roomId}`);
     });
 
     // Handle piece move
@@ -344,11 +343,8 @@ io.on('connection', (socket) => {
             player: playerData.color,
             steps
         });
-        
-        // Check for win condition or turn change logic here
-        // This is simplified - you'll need to implement full game logic
-        
-        console.log(`${playerData.playerName} moved piece ${pieceId} in room ${playerData.roomId}`);
+                
+        // console.log(`${playerData.playerName} moved piece ${pieceId} in room ${playerData.roomId}`);
     });
 
     // Handle turn change
@@ -372,7 +368,7 @@ io.on('connection', (socket) => {
         
         // Check if player has won
         if (data?.hasPlayerWon !== undefined && data?.hasPlayerWon === true) {
-            console.log( `==> ${playerData.playerName} has won the game in room ${playerData.roomId}`);
+            // console.log( `==> ${playerData.playerName} has won the game in room ${playerData.roomId}`);
             await playerWon();
 
             // If game has ended, do not change turn
@@ -386,7 +382,7 @@ io.on('connection', (socket) => {
             currentPlayer: room.players.find(p => p.color === room.gameState.currentTurn)?.name
         });
         
-        console.log(`Turn changed to ${room.gameState.currentTurn} in room ${playerData.roomId}`);
+        // console.log(`Turn changed to ${room.gameState.currentTurn} in room ${playerData.roomId}`);
     });
 
     async function playerWon () {
@@ -411,10 +407,9 @@ io.on('connection', (socket) => {
         room.gameState.winners.push(playerData.color);   
         // remove player from active players
         room.players.splice(room.players.findIndex(p => p.color === playerData.color), 1);
-        // room.players = room.players.filter(p => p.color !== playerData.color);
         console.dir("room.players", room.players);
 
-        console.log(`${playerData.playerName} won the game in room ${playerData.roomId}`);
+        // console.log(`${playerData.playerName} won the game in room ${playerData.roomId}`);
 
         if (room.gameState.winners.length > room.players.length - 1) {
             await gameEnds(room);
@@ -445,7 +440,7 @@ io.on('connection', (socket) => {
             await dbRoom.save();
         }
 
-        console.log(`Game ended in room ${room.id}. Winners: ${room.gameState.winners}`);
+        // console.log(`Game ended in room ${room.id}. Winners: ${room.gameState.winners}`);
     }
 
     // Handle disconnect
@@ -482,7 +477,7 @@ io.on('connection', (socket) => {
                             currentPlayer: room.players[nextIndex].name
                         });
 
-                        console.log(`Turn changed due to disconnect. Now it's ${nextPlayerColor}'s turn`);
+                        // console.log(`Turn changed due to disconnect. Now it's ${nextPlayerColor}'s turn`);
                     }
                 }
 
@@ -499,7 +494,7 @@ io.on('connection', (socket) => {
                 if (room.players.length === 0) {
                     await gameEnds(room);
                     activeRooms.delete(playerData.roomId);
-                    console.log(`Room ${playerData.roomId} deleted - no players left`);
+                    // console.log(`Room ${playerData.roomId} deleted - no players left`);
                 } else {
                     // If host left, make another player host
                     if (leavingPlayer.isHost && room.players.length > 0) {
@@ -540,7 +535,7 @@ io.on('connection', (socket) => {
             }
             
             playerSockets.delete(socket.id);
-            console.log(`Player ${playerData.playerName} disconnected from room ${playerData.roomId}`);
+            // console.log(`Player ${playerData.playerName} disconnected from room ${playerData.roomId}`);
         } catch (error) {
             console.error('Disconnect error:', error);
         }
@@ -602,6 +597,5 @@ app.get('/health', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`MongoDB connected: ${mongoose.connection.readyState === 1 ? 'Yes' : 'No'}`);
+    // console.log(`Server running on port ${PORT}`);
 });
