@@ -5,7 +5,7 @@ const dice = document.getElementById("dice");
 
 async function animatePieceToCell(piece, targetCell, duration = 200) {
   dice.style.pointerEvents = "none";
-  console.log("dice disabled");
+  // console.log("dice disabled");
   //   const startCell = piece.parentElement;
   const pieceRect = piece.getBoundingClientRect();
   const targetRect = targetCell.getBoundingClientRect();
@@ -36,7 +36,7 @@ async function animatePieceToCell(piece, targetCell, duration = 200) {
 }
 
 function arrangePiecesInCell(cell) {
-  console.log(`Arranging pieces in cell:`, cell);
+  // console.log(`Arranging pieces in cell:`, cell);
 
   const pieces = cell.querySelectorAll(".piece"); // Make sure each piece has class="piece"
   const total = pieces.length;
@@ -74,14 +74,14 @@ async function animatePieceMovementToTargetIndex(
   fromIndex,
   toIndex
 ) {
-  console.log(
-    `Animating piece ${piece} from index ${fromIndex} to ${toIndex} on path:`
-  );
+  // console.log(
+  //   `Animating piece ${piece} from index ${fromIndex} to ${toIndex} on path:`
+  // );
 
   const startCell = document.getElementById(pathArray[fromIndex]);
   const targetCell = document.getElementById(pathArray[toIndex]);
   dice.style.pointerEvents = "none";
-  console.log("dice disabled");
+  // console.log("dice disabled");
 
   for (let i = fromIndex + 1; i <= toIndex; i++) {
     const cellId = pathArray[i];
@@ -95,7 +95,7 @@ async function animatePieceMovementToTargetIndex(
     await animatePieceToCell(piece, cell); // Animate to next step
   }
 
-  console.log("startCell", startCell, "targetCell", targetCell);
+  // console.log("startCell", startCell, "targetCell", targetCell);
 
   arrangePiecesInCell(startCell);
   arrangePiecesInCell(targetCell);

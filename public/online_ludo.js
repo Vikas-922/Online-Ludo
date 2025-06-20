@@ -226,9 +226,8 @@ function createRoom() {
     }
     
     playerName = name;
-    console.log(`emmitting create-room with playerName: ${playerName}`);   
+    // console.log(`emmitting create-room with playerName: ${playerName}`);   
     socket.emit('create-room', { playerName });
-    // showMessage("Creating room...", true);
     toast.info("Creating room...", 2000);
 }
 
@@ -309,7 +308,7 @@ function updatePlayersDisplay() {
 
 // Room created successfully
 socket.on('room-created', (data) => {
-    console.log(" on room-created:", (data));
+    // console.log(" on room-created:", (data));
     
     roomId = data.roomId;
     playerColor = data.playerColor;
@@ -323,11 +322,13 @@ socket.on('room-created', (data) => {
     showNameInHomeArea("You", playerColor);
     
     toast.success(`Room created! Share code: ${roomId}`,2000);
+
+    copyRoomId();
 });
 
 // Successfully joined room
 socket.on('room-joined', (data) => {
-    console.log("on room-joined:", (data));
+    // console.log("on room-joined:", (data));
 
     roomId = data.roomId;
     playerColor = data.playerColor;
@@ -371,7 +372,7 @@ function showNameInHomeArea(name, color) {
 
 // Room state updated (player joined/left)
 socket.on('room-update', (data) => {
-    console.log("on room-update:", (data));
+    // console.log("on room-update:", (data));
     playersInRoom = data.players;
     updatePlayersDisplay();
     
@@ -387,7 +388,7 @@ socket.on('room-update', (data) => {
 
 // Game started
 socket.on('game-started', (data) => {
-    console.log("on game-started:", (data));
+    // console.log("on game-started:", (data));
     gameState = data.gameState;
     gameStarted = true;
     
@@ -407,7 +408,7 @@ socket.on('game-started', (data) => {
 
 // Player left the room
 socket.on('player-left', (data) => {
-    console.log("🧑❌ on player-left:", (data));
+    // console.log("🧑❌ on player-left:", (data));
     playersInRoom = data.remainingPlayers;
     updatePlayersDisplay();
     // showMessage(`${data.playerName} left the game`);
@@ -434,7 +435,7 @@ function showLeftIndicator(playerColor) {
 
 // Game ended
 socket.on('game-ended', (data) => {
-    console.log("🎮🚫 on game-ended:", (data)); 
+    // console.log("🎮🚫 on game-ended:", (data)); 
 
     gameStarted = false;
     // showMessage(`Game ended: ${data.reason}`);
@@ -453,7 +454,7 @@ socket.on('game-ended', (data) => {
 
 // Dice rolled by a player
 socket.on('dice-rolled', (data) => {
-    console.log("🎲 on dice-rolled:", (data));
+    // console.log("🎲 on dice-rolled:", (data));
     diceValue = data.diceValue;
     
     // Update dice display to show the rolled value
@@ -463,14 +464,13 @@ socket.on('dice-rolled', (data) => {
         // This is our roll, handle it
         handleOwnDiceRoll(data.diceValue);
     } else {
-        console.log(` ${data.playerName} rolled ${data.diceValue}`);
-        
+        // console.log(` ${data.playerName} rolled ${data.diceValue}`);        
     }
 });
 
 // Piece moved by a player
 socket.on('piece-moved', async(data) => {
-    console.log("🧩 on piece-moved:", (data));
+    // console.log("🧩 on piece-moved:", (data));
     const { pieceId, newPosition, steps, newPathIndex, player } = data;
 
     if (player !== playerColor) {
@@ -485,20 +485,21 @@ socket.on('piece-moved', async(data) => {
 
 // Turn changed
 socket.on('turn-changed',(data) => {
-    console.log("🔄 on turn-changed:", (data));
+    // console.log("🔄 on turn-changed:", (data));
     currentTurn = data.currentTurn;
     updateCurrentPlayerDisplay(); 
 
-    console.log("🎨 playerColor:", playerColor, "🧑 data.currentPlayer:", data.currentPlayer);
+    // console.log("🎨 playerColor:", playerColor, "🧑 data.currentPlayer:", data.currentPlayer);
     if (playerColor === currentTurn) {
-        // showMessage("It's your turn!");
         toast.info("It's your turn!",400);
-        console.log("🎯 It's your turn!");        
+        // console.log("🎯 It's your turn!");        
         dice.style.pointerEvents = 'auto';
+        startTurnTimer(); 
     } else {
-        console.log(`🕹️ It's ${data.currentPlayer}'s turn`);        
+        stopTurnTimer();
+        // console.log(`🕹️ It's ${data.currentPlayer}'s turn`);        
         dice.style.pointerEvents = 'none';
-        console.log("🎲❌ dice disabled");
+        // console.log("🎲❌ dice disabled");
         
     }
 });
@@ -590,7 +591,7 @@ function getDiceValue(x, y) {
 let rollingTimeout,nextTimeout = null; // To cancel current animation
 let isRolling = false;
 
-async function diceRollAnimation() {    
+function diceRollAnimation() {    
     if (!gameStarted) return;
 
     // Check if it's the player's turn
@@ -607,6 +608,8 @@ async function diceRollAnimation() {
     }
     
     if (isRolling) return;
+
+    stopTurnTimer();
     
     // Perform dice animation (keep your existing animation code)
     if (rollingTimeout) {
@@ -641,12 +644,11 @@ async function diceRollAnimation() {
         diceRollingAudio.pause();
         dice.style.pointerEvents = 'none';
         document.querySelector('.dice-area').classList.remove('rolling');
-        // socket.emit('roll-dice', { diceValue: value, finalX: finalX, finalY: finalY });
     }, 600);
 
     nextTimeout = setTimeout(() => {
         // Send dice roll to server
-        console.log(`➡️ emitting roll-dice 🎲 with value: ${value}`);
+        // console.log(`➡️ emitting roll-dice 🎲 with value: ${value}`);
         
         isRolling = false;
         rollingTimeout = null;
@@ -696,17 +698,20 @@ async function updateDiceDisplay(finalX, finalY) {
     });
     
     if (playablePieces.length === 0) {
-        console.log(`🔚 emitting end-turn `);
-
+        // console.log(`🔚 emitting end-turn `);
         socket.emit('end-turn', {});
-    } else if (playablePieces.length === 1 || 
-               (playablePieces.length > 0 && playablePieces.every(p => p.dataset.position === 'home'))) {
+    } 
+    else if (playablePieces.length === 1 || 
+               (playablePieces.length > 0 && playablePieces.every(p => p.dataset.position === 'home'))) 
+    {
         playablePieces[0].classList.add('selected');
         selectedPiece = playablePieces[0];
         movePiece(selectedPiece, diceValue);
         playablePieces[0].classList.remove('selected');
-    } else {
+    } 
+    else {
         playablePieces.forEach(piece => piece.classList.add('selected'));
+        if (isAutoPlay) autoMoveRandomPiece();
     }
 }
 
@@ -805,13 +810,9 @@ async function movePiece(piece, steps) {
         await animatePieceMovementToTargetIndex(piece, pathArray, currentIndex, newIndex);
 
         piece.dataset.position = 'finished';
-        piece.dataset.pathIndex = finishIndex.toString();
-        
+        piece.dataset.pathIndex = finishIndex.toString();        
                 
         checkWinCondition();
-
-        // console.log(`completed win condition for ${currentTurn}`);        
-
         resetOnlineTurn();
         return;
     }
@@ -836,7 +837,7 @@ async function movePiece(piece, steps) {
     piece.dataset.position = (newIndex < COMMON_LENGTH ? 'path' : 'home-path');
     piece.dataset.pathIndex = newIndex.toString();
 
-    console.log(`➡️ emitting move-piece for ${piece.dataset.pieceId} to path index ${newIndex}`);
+    // console.log(`➡️ emitting move-piece for ${piece.dataset.pieceId} to path index ${newIndex}`);
     
     if (newIndex < COMMON_LENGTH) {
         checkAndKillOpponent(piece);
@@ -888,7 +889,7 @@ async function checkAndKillOpponent(movedPiece) {
 
 
 function checkWinCondition() {
-    console.log(`🏆 winning check for ${currentTurn} `);
+    // console.log(`🏆 winning check for ${currentTurn} `);
     
     const currentPlayer = players[currentTurn];
     const finishedPieces = currentPlayer.pieces.filter(p => p.dataset.position === 'finished');
@@ -908,6 +909,7 @@ function checkWinCondition() {
  */
 function resetOnlineTurn() {
     deselectPiece();
+    stopTurnTimer();
     
     if (!gameStarted) {
         dice.style.pointerEvents = 'none';
@@ -919,7 +921,7 @@ function resetOnlineTurn() {
     // Check if player gets another turn (rolled 6, killed piece, or entered finish)
     if ((diceValue !== 6 && !isEnteredFinishZone && !iskilledOtherPlayer) || hasPlayerWon) {
         // End turn
-        console.log(`🔚 emitting end-turn for ${currentTurn}`);
+        // console.log(`🔚 emitting end-turn for ${currentTurn}`);
         
         socket.emit('end-turn', {hasPlayerWon});
         resetSpecialFlags();
@@ -928,6 +930,7 @@ function resetOnlineTurn() {
         dice.style.pointerEvents = 'auto';
         // showMessage("You get another turn!");
         toast.info("You get another turn!",700);
+        startTurnTimer();
     }
     
     diceValue = 0;
@@ -983,7 +986,7 @@ async function updatePiecePosition(piece, steps) {
         toast.warning("Cannot move: Overshot the finish. Try again.",3000);
         return;
     }
-    console.log(` moving piece 🧩 ${piece.dataset.pieceId} from index ${currentIndex} to new index ${newIndex}`);
+    // console.log(` moving piece 🧩 ${piece.dataset.pieceId} from index ${currentIndex} to new index ${newIndex}`);
     
     if (newIndex === finishIndex) {
         const finishCell = document.getElementById(pathArray[finishIndex]);
@@ -1025,10 +1028,8 @@ async function updatePiecePosition(piece, steps) {
 
     if (currentTurn === playerColor) {
         dice.style.pointerEvents = 'auto';
-        console.log("🎲✅ dice enabled");      
+        // console.log("🎲✅ dice enabled");      
     }
-
-    // resetOnlineTurn();
 }
 
 
@@ -1084,7 +1085,7 @@ function declareWinner(playerColor) {
     let place = winners.length; // 1st, 2nd, 3rd, etc.
     place = place === 1 ? "1st" : place === 2 ? "2nd" : "3rd";
     const badgeImageSrc = `./media/${place}.png`;
-    console.log(`🏆 declaring winner: ${playerColor} in ${place} place`);
+    // console.log(`🏆 declaring winner: ${playerColor} in ${place} place`);
 
     const homeArea = document.querySelector(`.home-area.home-${playerColor}`);
     const badgeDiv = homeArea.querySelector('.winner-badge');
@@ -1130,6 +1131,109 @@ function copyRoomId() {
 }
 
 
+// ==================== TIMER LOGIC ==========================
+
+let turnTimer = null;
+let autoPlayTimer = null;
+let timeLeft = 4;
+let isAutoPlay = false;
+
+function startTurnTimer() {
+    if (currentTurn !== playerColor || !gameStarted) return;
+
+    timeLeft = 4;
+    isAutoPlay = false;
+    showTimer();
+    
+    turnTimer = setInterval(() => {
+        timeLeft--;
+        updateTimer();
+        
+        if (timeLeft <= 0) {
+            clearInterval(turnTimer);
+            autoPlayTurn();
+        }
+    }, 1000);
+}
+
+function showTimer() {
+    const homeArea = document.querySelector(`.home-${currentTurn}`);
+    const timerContainer = homeArea.querySelector('.timer-container');
+    timerContainer.style.display = 'block';
+    updateTimer();
+}
+
+function hideTimer() {
+    document.querySelectorAll('.timer-container').forEach(timer => {
+        timer.style.display = 'none';
+    });
+}
+
+function updateTimer() {
+    const homeArea = document.querySelector(`.home-${currentTurn}`);
+    const timerCircle = homeArea.querySelector('.timer-circle');
+    const timerProgress = homeArea.querySelector('.timer-progress');
+    
+    timerCircle.textContent = timeLeft;
+    
+    const percentage = ((7 - timeLeft) / 7) * 360;
+    timerProgress.style.background = `conic-gradient(#7e7e7e ${percentage}deg, transparent ${percentage}deg)`;
+}
+
+function stopTurnTimer() {
+    if (turnTimer) {
+        clearInterval(turnTimer);
+        turnTimer = null;
+    }
+    if (autoPlayTimer) {
+        clearTimeout(autoPlayTimer);
+        autoPlayTimer = null;
+    }
+    hideTimer();
+}
+
+function autoPlayTurn() {
+    isAutoPlay = true;
+    
+    // Disable piece clicking
+    document.querySelectorAll('.home-circle.selected').forEach(piece => {
+        piece.style.pointerEvents = 'none';
+    });
+    
+    // Auto roll dice
+    diceRollAnimation();
+    
+    // Auto move piece after 2 seconds
+    // autoPlayTimer = setTimeout(() => {
+    //     autoMoveRandomPiece();
+    // }, 2000);
+}
+
+function autoMoveRandomPiece() {
+
+    const selectedPieces = document.querySelectorAll('.piece.selected');
+    
+    if (selectedPieces.length > 0) {
+        const randomPiece = selectedPieces[Math.floor(Math.random() * selectedPieces.length)];
+        
+        // Deselect all pieces first
+        selectedPieces.forEach(piece => {
+            piece.classList.remove('selected');
+            piece.style.pointerEvents = 'auto';
+        });
+        
+        // Select and move the random piece
+        selectedPiece = randomPiece;
+        randomPiece.classList.add('selected');
+        movePiece(selectedPiece, diceValue);
+        randomPiece.classList.remove('selected');
+    }
+    
+    isAutoPlay = false;
+}
+
+
+
 // ===================== EVENT LISTENERS =====================
 
 // Room management buttons
@@ -1155,7 +1259,7 @@ window.onload = function() {
 // Handle page refresh/close
 window.addEventListener('beforeunload', () => {
     if (socket.connected) {
-        console.log("Disconnecting socket before unload");
+        // console.log("Disconnecting socket before unload");
         socket.disconnect();
     }
 });

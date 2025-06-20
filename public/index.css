@@ -104,7 +104,7 @@
     background: rgba(255, 255, 255, 0.8);
     text-align: center;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 10px;
     font-weight: 600;
 }
 
@@ -365,6 +365,52 @@
 
 
 
+/* =====  TIMER CSS ==========*/
+
+.timer-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);   
+    width: 37%;
+    aspect-ratio: 1;
+    z-index: 10;
+}
+
+.timer-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);   
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.599);
+    border: 4px solid #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #7e7e7e;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.timer-progress {
+    position: absolute;
+    /* top: -4px;
+    left: -4px; */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: conic-gradient(#7e7e7e 0deg, transparent 0deg);
+    transition: all 0.1s linear;
+}
+
+
 
 
 /* Responsive Design */
@@ -406,7 +452,6 @@
         padding: 11px 25px;
         letter-spacing: 3px;
     }
-
     
     #room-id-input{
         width: 80%;
@@ -414,6 +459,7 @@
         font-size: 18px;
         letter-spacing: 8px;
     }
+
     #join-room-btn {
         width:80%;
     }
@@ -429,6 +475,7 @@
     #room-id-display {
         font-size: 18px;
     }
+
 
     #start-game-btn{
         font-size: 13px;
@@ -450,6 +497,10 @@
 
     .winner-badge .playerNameInHomeArea  {
         font-size: 0.88rem;
+    }
+
+    .timer-circle{
+        font-size: 1rem;
     }
 }
 
@@ -479,4 +530,5 @@
     .current-player{
         font-size: 1.4rem;
     }
+
 }

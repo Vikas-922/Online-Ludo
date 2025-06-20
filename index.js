@@ -25,10 +25,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 // MongoDB connection
-// mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/ludo-game', {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true
-// });
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
 
 // MongoDB Schema for Room History
 const roomSchema = new mongoose.Schema({
@@ -47,6 +47,7 @@ const roomSchema = new mongoose.Schema({
         leaveTime: Date
     }],
     gameStarted: { type: Boolean, default: false },
+    gameEnded: { type: Boolean, default: false },
     gameEndTime: Date,
     winners: [String],
     createdAt: { type: Date, default: Date.now }
@@ -128,16 +129,16 @@ io.on('connection', (socket) => {
             playerSockets.set(socket.id, { roomId, playerName, color: 'red' });
             
             // Save to MongoDB for history
-            // const dbRoom = new Room({
-            //     roomId,
-            //     players: [{
-            //         name: playerName,
-            //         color: 'red',
-            //         isHost: true,
-            //         joinTime: new Date()
-            //     }]
-            // });
-            // await dbRoom.save();
+            const dbRoom = new Room({
+                roomId,
+                players: [{
+                    name: playerName,
+                    color: 'red',
+                    isHost: true,
+                    joinTime: new Date()
+                }]
+            });
+            await dbRoom.save();
             
             socket.join(roomId);
             socket.emit('room-created', { roomId, playerColor: 'red', isHost: true });
@@ -196,19 +197,8 @@ io.on('connection', (socket) => {
             };
             
             room.players.push(newPlayer);
-            playerSockets.set(socket.id, { roomId, playerName, color: playerColor });
-            
-            // Update MongoDB
-            // const dbRoom = await Room.findOne({ roomId });
-            // if (dbRoom) {
-            //     dbRoom.players.push({
-            //         name: playerName,
-            //         color: playerColor,
-            //         joinTime: new Date()
-            //     });
-            //     await dbRoom.save();
-            // }
-            
+            playerSockets.set(socket.id, { roomId, playerName, color: playerColor });            
+                      
             socket.join(roomId);
             socket.emit('room-joined', { roomId, playerColor, playerName, isHost: false });
 
@@ -217,6 +207,17 @@ io.on('connection', (socket) => {
                 players: room.players.map(p => ({ name: p.name, color: p.color, isHost: p.isHost })),
                 gameStarted: room.gameState.gameStarted
             });
+
+            // Update MongoDB
+            const dbRoom = await Room.findOne({ roomId });
+            if (dbRoom) {
+                dbRoom.players.push({
+                    name: playerName,
+                    color: playerColor,
+                    joinTime: new Date()
+                });
+                await dbRoom.save();
+            }
             
             console.log(`${playerName} joined room ${roomId} as ${playerColor}`);
         } catch (error) {
@@ -259,14 +260,7 @@ io.on('connection', (socket) => {
                         player: player.color
                     };
                 }
-            });
-            
-            // Update MongoDB
-            // const dbRoom = await Room.findOne({ roomId: playerData.roomId });
-            // if (dbRoom) {
-            //     dbRoom.gameStarted = true;
-            //     await dbRoom.save();
-            // }
+            }); 
             
             // Notify all players
             io.to(playerData.roomId).emit('game-started', {
@@ -274,6 +268,13 @@ io.on('connection', (socket) => {
                 playerColors: room.players.map(p => p.color)
             });
             
+            // Update MongoDB
+            const dbRoom = await Room.findOne({ roomId: playerData.roomId });
+            if (dbRoom) {
+                dbRoom.gameStarted = true;
+                await dbRoom.save();
+            }
+
             console.log(`Game started in room ${playerData.roomId}`);
         } catch (error) {
             socket.emit('error', { message: 'Failed to start game' });
@@ -351,7 +352,7 @@ io.on('connection', (socket) => {
     });
 
     // Handle turn change
-    socket.on('end-turn', (data) => {
+    socket.on('end-turn', async (data) => {
         const playerData = playerSockets.get(socket.id);
         if (!playerData) return;
         
@@ -360,7 +361,8 @@ io.on('connection', (socket) => {
         
         if (room.gameState.currentTurn !== playerData.color) return;
 
-        
+        // await playerWon();
+
         // Find next player
         const currentIndex = room.players.findIndex(p => p.color === room.gameState.currentTurn);
         const nextIndex = (currentIndex + 1) % room.players.length;
@@ -371,7 +373,7 @@ io.on('connection', (socket) => {
         // Check if player has won
         if (data?.hasPlayerWon !== undefined && data?.hasPlayerWon === true) {
             console.log( `==> ${playerData.playerName} has won the game in room ${playerData.roomId}`);
-            playerWon();
+            await playerWon();
 
             // If game has ended, do not change turn
             if (room.gameState.gameEnded) return;
@@ -387,7 +389,7 @@ io.on('connection', (socket) => {
         console.log(`Turn changed to ${room.gameState.currentTurn} in room ${playerData.roomId}`);
     });
 
-    function playerWon () {
+    async function playerWon () {
         const playerData = playerSockets.get(socket.id);
         if (!playerData) return;
 
@@ -415,27 +417,16 @@ io.on('connection', (socket) => {
         console.log(`${playerData.playerName} won the game in room ${playerData.roomId}`);
 
         if (room.gameState.winners.length > room.players.length - 1) {
-            gameEnds(room);
+            await gameEnds(room);
             return;
         }
 
     }
     
-    function gameEnds(room) {
+    async function gameEnds(room) {
 
         room.gameState.gameEnded = true;
         room.gameState.gameEndTime = new Date();
-
-
-        // Update MongoDB
-        // const dbRoom = await Room.findOne({ roomId: playerData.roomId });
-        // if (dbRoom) {
-        //     dbRoom.gameEnded = true;
-        //     dbRoom.winners = room.gameState.winners;
-        //     dbRoom.gameEndTime = new Date();
-        //     await dbRoom.save();
-        // }
-
 
         // Notify all players
         io.to(room.id).emit('game-ended', {
@@ -443,6 +434,16 @@ io.on('connection', (socket) => {
             winners: room.gameState.winners,
             winnerNames: room.players.filter(p => room.gameState.winners.includes(p.color)).map(p => p.name)
         });
+
+
+        // Update MongoDB
+        const dbRoom = await Room.findOne({ roomId: room.id });
+        if (dbRoom) {
+            dbRoom.gameEnded = true;
+            dbRoom.winners = room.gameState.winners;
+            dbRoom.gameEndTime = new Date();
+            await dbRoom.save();
+        }
 
         console.log(`Game ended in room ${room.id}. Winners: ${room.gameState.winners}`);
     }
@@ -493,18 +494,10 @@ io.on('connection', (socket) => {
                     leaveTime: new Date()
                 });
 
-                // Update MongoDB with leave time
-                // const dbRoom = await Room.findOne({ roomId: playerData.roomId });
-                // if (dbRoom) {
-                //     const dbPlayer = dbRoom.players.find(p => p.name === playerData.playerName);
-                //     if (dbPlayer) {
-                //         dbPlayer.leaveTime = new Date();
-                //         await dbRoom.save();
-                //     }
-                // }
                 
                 // If room is empty, clean up
                 if (room.players.length === 0) {
+                    await gameEnds(room);
                     activeRooms.delete(playerData.roomId);
                     console.log(`Room ${playerData.roomId} deleted - no players left`);
                 } else {
@@ -532,6 +525,16 @@ io.on('connection', (socket) => {
                             winners: [],
                             reason: 'Not enough players to continue'
                         });
+                    }
+                }
+
+                 // Update MongoDB with leave time
+                const dbRoom = await Room.findOne({ roomId: playerData.roomId });
+                if (dbRoom) {
+                    const dbPlayer = dbRoom.players.find(p => p.name === playerData.playerName);
+                    if (dbPlayer) {
+                        dbPlayer.leaveTime = new Date();
+                        await dbRoom.save();
                     }
                 }
             }
@@ -562,7 +565,8 @@ app.get('/api/room/:roomId', async (req, res) => {
                 isHost: p.isHost 
             })),
             gameStarted: room.gameState.gameStarted,
-            maxPlayers: room.maxPlayers
+            maxPlayers: room.maxPlayers,
+            playersJoined: room.playersJoined
         });
     } catch (error) {
         res.status(500).json({ error: 'Server error' });
@@ -577,8 +581,8 @@ app.get('/', (req, res) => {
 
 app.get('/api/rooms/history', async (req, res) => {
     try {
-        // const rooms = await Room.find().sort({ createdAt: -1 }).limit(50);
-        const rooms = {message: "not connected to DB"}
+        const rooms = await Room.find().sort({ createdAt: -1 }).limit(15);
+        // const rooms = {message: "not connected to DB"}
         res.json(rooms);
     } catch (error) {
         res.status(500).json({ error: 'Server error' });
@@ -599,5 +603,5 @@ app.get('/health', (req, res) => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
-    // console.log(`MongoDB connected: ${mongoose.connection.readyState === 1 ? 'Yes' : 'No'}`);/
+    console.log(`MongoDB connected: ${mongoose.connection.readyState === 1 ? 'Yes' : 'No'}`);
 });
